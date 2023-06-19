@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <script>
+        const ClosureArr = [
+            ['Expression', [['Additive']]],
+            ['Additive', [['Multiplicative'], ['Additive', '+', 'Multiplicative'], ['Additive', '-', 'Multiplicative']]],
+            ['Multiplicative', [['Primary'], ['Multiplicative', '*', 'Primary'], ['Multiplicative', '/', 'Primary']]],
+            ['Primary', [['Number'], ['(', 'Expression', ')']]],
+        ]
+
+        const ClosureMap = new Map(ClosureArr)
+        function start(symbol) {
+            if (symbol.type === 'Expression') {
+                return EOF
+            }
+        }
+        //一开始展开，看看到底能接受什么符号
+        //深度优先或者广度优先来求解
+        //reduce和shift 不停切换
+        //BFS/DFS A-star 搜索算法
+        //class 封装意义：一组数据与一组对该数据的操作
+        //推荐书：
+        //1.《面向对象分析与设计》 Grandy Booch
+        //2.《设计模式》 ：面向对象基础原则-SOLID五原则  GOF23种设计模式
+        //3.《the c++ programming Language》最后一个部分（面向对象）
+        function getClosure(symbol) {
+            let rules = []
+            // ClosureMap.has(symbol) && ClosureMap.get(symbol)
+
+            const pool = [symbol] //深搜 广搜
+            while (pool.length !== 0) {
+                const current = pool.pop()
+                if (ClosureMap.has(current)) {
+                    const list = ClosureMap.get(current)
+                    rules = [...rules, ...list.map(closure => ({ closure, $reduce: current }))]
+                    const [next] = list
+                    pool.push(...next)
+                }
+            }
+            // while (pool.length !== 0) {
+            //     const current = pool.pop() //这里决定广搜和深搜
+            //     const newRules = closure(current)
+            //     rules.push(...newRules)
+            //     const firstSymbols = newRules.map(rule => rule[0]).filter(symbol => !dictionary.has(symbol))
+            //     pool.push(...firstSymbols)
+            //     firstSymbols.forEach(item => dictionary.add(item))
+
+            // }
+
+            return rules
+
+        }
+        const initialState = {
+            Additive: { $reduce: "Expression" }
+        }
+        //目的：initialState =>  states  
+        //第一步： 把 initialState 转成 closure 状态  （可见output.json)
+        const extendedState = new Map()
+        function generateState(states) {
+            extendedState.set(JSON.stringify(states),states)
+            for (let target of Object.keys(states)) {
+                const closureMap = getClosure(target)
+                // let targetMap = {}
+                closureMap.forEach(({ closure, $reduce }) => {
+                    let current = states   //把states 的引用地址保存在栈里，states自身是保存在堆里，这里current只是保存一个地址
+                    closure.forEach((symbol, index) => {
+                        if (!current[symbol]) {
+                            current[symbol] = {} //给当前的对象地址创造出一个引用地址，这个保存在堆里
+                            // $reduce
+
+                        }
+                        // console.log(current,'===')
+                        current = current[symbol] //把堆里最新引用地址的赋值给 current（栈）
+                    })
+                    current["$reduce"] = $reduce
+                })
+            }
+
+            for (let target of Object.keys(states)) {
+                if (target.startsWith("$")) continue
+                if (extendedState.has(JSON.stringify(states[target]))) {
+                    states[target] = extendedState.get(JSON.stringify(states[target]))
+                } else {
+                    generateState(states[target])
+                }
+            }
+            // console.log(JSON.stringify(states, null, ' '.repeat(3)))
+
+
+        }
+
+        generateState(initialState)
+    </script>
+</body>
+
+</html>

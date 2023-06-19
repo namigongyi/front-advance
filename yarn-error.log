@@ -1,0 +1,32 @@
+Arguments: 
+  D:\Program Files\nodejs\node.exe D:\nodejs\node_global\node_modules\yarn\bin\yarn.js install
+
+PATH: 
+  C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Windows\System32\OpenSSH\;D:\nodejs\;D:\nodejs\node_global\;C:\Program Files\Git\cmd;C:\Users\youyo\AppData\Roaming\nvm;D:\Program Files\nodejs;D:\Program Files\nodejs\node_global\node_modules\yarn\bin;C:\Users\youyo\AppData\Local\Yarn\Data\global\node_modules\.bin;C:\Users\youyo\AppData\Local\pnpm;C:\Users\youyo\AppData\Local\Microsoft\WindowsApps;C:\Users\youyo\AppData\Local\GitHubDesktop\bin;D:\Microsoft VS Code\bin
+
+Yarn version: 
+  1.22.19
+
+Node version: 
+  18.2.0
+
+Platform: 
+  win32 x64
+
+Trace: 
+  Error: getaddrinfo ENOTFOUND registry.npm.taobao.org
+      at GetAddrInfoReqWrap.onlookup [as oncomplete] (node:dns:83:26)
+
+npm manifest: 
+  {
+    "dependencies": {
+      "acorn": "^8.8.1",
+      "magic-string": "^0.26.7"
+    }
+  }
+
+yarn manifest: 
+  No manifest
+
+Lockfile: 
+  No lockfile
