@@ -62,7 +62,7 @@ function getClosure(symbol,{ClosureMap}) {
 }
 
 function generateState(states,{ClosureMap}) {
-    console.log(ClosureMap)
+    // console.log(ClosureMap)
     extendedState.set(JSON.stringify(states),states)
     for (let target of Object.keys(states)) {
         const closureMap = getClosure(target,{ClosureMap})
@@ -99,7 +99,7 @@ function generateState(states,{ClosureMap}) {
 
 function expressionPrimary(list,{ClosureMap,initalState}) {
     let state = initalState;
-    console.log(ClosureMap)
+    // console.log(ClosureMap)
     generateState(state,{ClosureMap})
     let stateStack = [initalState]
     let stack = []
@@ -157,7 +157,7 @@ function parse(str,{ClosureMap,initalState}) {
     // }
     const list = regFunction(str)
     
-    console.log(list)
+    // console.log(list)
     list.push({ //为了使最后一个reduce
             type: 'EOF'
         })
