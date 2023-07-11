@@ -62,10 +62,10 @@ function getClosure(symbol,{ClosureMap}) {
 }
 
 function generateState(states,{ClosureMap}) {
-    // console.log(ClosureMap)
     extendedState.set(JSON.stringify(states),states)
     for (let target of Object.keys(states)) {
         const closureMap = getClosure(target,{ClosureMap})
+        console.log(closureMap)
         // let targetMap = {}
         closureMap.forEach(({ closure, $reduce }) => {
             let current = states   //把states 的引用地址保存在栈里，states自身是保存在堆里，这里current只是保存一个地址
@@ -75,7 +75,6 @@ function generateState(states,{ClosureMap}) {
                     // $reduce
 
                 }
-                // console.log(current,'===')
                 current = current[symbol] //把堆里最新引用地址的赋值给 current（栈）
             })
             current["$reduce"] = $reduce
@@ -91,7 +90,6 @@ function generateState(states,{ClosureMap}) {
             generateState(states[target],{ClosureMap})
         }
     }
-    // console.log(JSON.stringify(states, null, ' '.repeat(3)))
 
 
 }
@@ -99,10 +97,10 @@ function generateState(states,{ClosureMap}) {
 
 function expressionPrimary(list,{ClosureMap,initalState}) {
     let state = initalState;
-    // console.log(ClosureMap)
     generateState(state,{ClosureMap})
     let stateStack = [initalState]
     let stack = []
+    console.log(initalState)
     let currentState = () => stateStack[stateStack.length - 1]
     function shift(symbol) {
         // const nextState =  stateStack[stateStack.length - 1][symbol.type]
@@ -138,7 +136,7 @@ function expressionPrimary(list,{ClosureMap,initalState}) {
         const symbol = list[i]
         shift(symbol)
     }
- 
+    return stack
 }
 
 function parse(str,{ClosureMap,initalState}) {
@@ -157,12 +155,10 @@ function parse(str,{ClosureMap,initalState}) {
     // }
     const list = regFunction(str)
     
-    // console.log(list)
     list.push({ //为了使最后一个reduce
             type: 'EOF'
         })
-    expressionPrimary(list,{ClosureMap,initalState})
-    return list
+    return expressionPrimary(list,{ClosureMap,initalState})
 }
 
 // const  rules =[

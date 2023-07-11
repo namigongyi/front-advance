@@ -4,9 +4,9 @@ describe('parse', () => {
     it('literal ', () => {
         const str = "123"
         const  rules =[
-            ['Primary',[["(","Expression",")"],["Literal"],["identifier"]]],
+            // ['Primary',[["(","Expression",")"],["Literal"],["identifier"]]],
             ['Literal',[['NumberLiteral'],["StringLiteral"],["NullLiteral"],["BooleanLiteral"]]],
-            ['MemberExpresion',[['Primary']]]
+            // ['MemberExpresion',[['Primary']]]
         ];
 
         const initalState ={
@@ -14,14 +14,14 @@ describe('parse', () => {
         }
         const ClosureMap =  new Map(rules)
         const root = parse(str,{ClosureMap,initalState})
-       expect(root).toEqual([ { val: '123', type: 'NumberLiteral' }, { type: 'EOF' } ])
+       expect(root).toEqual([{"type":"Literal","children":[{"val":"123","type":"NumberLiteral"}]},{"type":"EOF"}])
     });
     it('MemberExpression ', () => {
         const str = '"fanfan"'
         const  rules =[
             ['Primary',[["(","Expression",")"],["Literal"],["identifier"]]],
             ['Literal',[['NumberLiteral'],["StringLiteral"],["NullLiteral"],["BooleanLiteral"]]],
-            ['MemberExpresion',[['Primary']]]
+            // ['MemberExpresion',[['Primary']]]
         ];
 
         const initalState ={
@@ -29,6 +29,6 @@ describe('parse', () => {
         }
         const ClosureMap =  new Map(rules)
         const root = parse(str,{ClosureMap,initalState})
-        console.log(root)
+        console.log(JSON.stringify(root))
     });
 });
