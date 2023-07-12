@@ -112,6 +112,7 @@ function getClosure(symbol) {
     const pool = [symbol] //深搜 广搜
     while (pool.length !== 0) {
         const current = pool.pop()
+        console.log(current)
         if (ClosureMap.has(current)) {
             const list = ClosureMap.get(current)
             rules = [...rules, ...list.map(closure => ({ closure, $reduce: current }))]
@@ -142,6 +143,7 @@ function generateState(states) {
     extendedState.set(JSON.stringify(states),states)
     for (let target of Object.keys(states)) {
         const closureMap = getClosure(target)
+        console.log(closureMap,'==========')
         // let targetMap = {}
         closureMap.forEach(({ closure, $reduce }) => {
             let current = states   //把states 的引用地址保存在栈里，states自身是保存在堆里，这里current只是保存一个地址
@@ -179,6 +181,6 @@ function EOF(symbol) {
 function success() {
     return success
 }
-generateState(initialState)  
+// generateState(initialState)  
 
 module.exports = { getClosure,generateState,initialState}

@@ -1,20 +1,32 @@
-const { closure } = require('../LR/20230311LR')
+const { getClosure } = require('../LR/20230311LR')
 const { parse } = require('../LR/20230325LR2')
 
 describe('LR', () => {
-    test('closure ', () => {
-        const res = closure('Expression')
+    it('closure ', () => {
+        const res = getClosure('Expression')
         expect(res).toEqual([
-            ['Additive'],
-            ['Multiplicative'],
-            ['Additive', '+', 'Multiplicative'],
-            ['Additive', '-', 'Multiplicative'],
-            ['Primary'],
-            ['Primary', '*', 'Multiplicative'],
-            ['Primary', '/', 'Multiplicative'],
-            ['Number'],
-            ['(', 'Expression', ')']
-        ])
+            { closure: [ 'Additive' ], '$reduce': 'Expression' },
+            { closure: [ 'Multiplicative' ], '$reduce': 'Additive' },
+            {
+              closure: [ 'Additive', '+', 'Multiplicative' ],
+              '$reduce': 'Additive'
+            },
+            {
+              closure: [ 'Additive', '-', 'Multiplicative' ],
+              '$reduce': 'Additive'
+            },
+            { closure: [ 'Primary' ], '$reduce': 'Multiplicative' },
+            {
+              closure: [ 'Multiplicative', '*', 'Primary' ],
+              '$reduce': 'Multiplicative'
+            },
+            {
+              closure: [ 'Multiplicative', '/', 'Primary' ],
+              '$reduce': 'Multiplicative'
+            },
+            { closure: [ 'Number' ], '$reduce': 'Primary' },
+            { closure: [ '(', 'Expression', ')' ], '$reduce': 'Primary' }
+          ])
     });
     /**
      * 设计一个单测可以检测循环对象的结构是否相等
@@ -23,7 +35,7 @@ describe('LR', () => {
      * 单测基础设施搭建
      */
 
-    test("LR2",()=>{
+    it("LR2",()=>{
         const res =  parse('1+2')
         expect(JSON.stringify(res)).toEqual(JSON.stringify(res))
     })

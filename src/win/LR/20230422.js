@@ -44,16 +44,17 @@ const regFunction = require('./20230415')
  */
 
 const extendedState = new Map()
-function getClosure(symbol,{ClosureMap}) {
+function getClosure(symbol,{ClosureMap}) {//根据 ClosureMap 给 symbol 拓展closurse
     let rules = []
 
     const pool = [symbol] //深搜 广搜
     while (pool.length !== 0) {
         const current = pool.pop()
+        console.log(current)
         if (ClosureMap.has(current)) {
             const list = ClosureMap.get(current)
             rules = [...rules, ...list.map(closure => ({ closure, $reduce: current }))]
-            const [next] = list
+            const next = list.flat(Infinity)
             pool.push(...next)
         }
     }
@@ -174,4 +175,4 @@ function parse(str,{ClosureMap,initalState}) {
 // let str = "'fannn'"
 // parse(str,{ClosureMap,initalState})
 
-module.exports = parse
+module.exports = {parse,getClosure}
