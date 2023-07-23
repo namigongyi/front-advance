@@ -45,20 +45,38 @@ const regFunction = require('./20230415')
 
 const extendedState = new Map()
 function getClosure(symbol,{ClosureMap}) {//根据 ClosureMap 给 symbol 拓展closurse
-    let rules = []
+    // let rules = [] 
 
-    const pool = [symbol] //深搜 广搜
-    while (pool.length !== 0) {
-        const current = pool.pop()
-        console.log(current)
-        if (ClosureMap.has(current)) {
-            const list = ClosureMap.get(current)
-            rules = [...rules, ...list.map(closure => ({ closure, $reduce: current }))]
-            const next = list.flat(Infinity)
-            pool.push(...next)
+    // const pool = [symbol] //深搜 广搜
+    // while (pool.length !== 0) {
+    //     const current = pool.pop()
+    //     // console.log(current)
+    //     if (ClosureMap.has(current)) {
+    //         const list = ClosureMap.get(current)
+    //         rules = [...rules, ...list.map(closure => ({ closure, $reduce: current }))]
+    //         // console.log(rules)
+    //         const [next] = list
+    //         pool.push(...next)
+    //     }
+    // }
+    // console.log(rules)
+    // return rules
+    const extended = new Set();
+    let res = [];
+    const stack = [symbol]
+    while(stack.length > 0){
+        const type = stack.shift();
+        if(extended.has(type))continue;
+        extended.add(type)
+        const ruleBodys = ClosureMap.get(type) || [];
+        // console.log(closure)
+        for(let closure of ruleBodys){
+            res.push({closure,$reduce:type})
+            stack.push(closure[0])
         }
     }
-    return rules
+    console.log(res)
+    return res
 
 }
 
@@ -66,7 +84,7 @@ function generateState(states,{ClosureMap}) {
     extendedState.set(JSON.stringify(states),states)
     for (let target of Object.keys(states)) {
         const closureMap = getClosure(target,{ClosureMap})
-        console.log(closureMap)
+        // console.log(closureMap)
         // let targetMap = {}
         closureMap.forEach(({ closure, $reduce }) => {
             let current = states   //把states 的引用地址保存在栈里，states自身是保存在堆里，这里current只是保存一个地址
@@ -155,7 +173,6 @@ function parse(str,{ClosureMap,initalState}) {
 
     // }
     const list = regFunction(str)
-    
     list.push({ //为了使最后一个reduce
             type: 'EOF'
         })

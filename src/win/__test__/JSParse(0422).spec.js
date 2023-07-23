@@ -4,9 +4,9 @@ describe('parse', () => {
     it('literal ', () => {
         const str = "123"
         const  rules =[
-            // ['Primary',[["(","Expression",")"],["Literal"],["identifier"]]],
+            // ['Primary',[["(","Expression",")"],["Literal"],["Identifier"]]],
             ['Literal',[['NumberLiteral'],["StringLiteral"],["NullLiteral"],["BooleanLiteral"]]],
-            // ['MemberExpresion',[['Primary']]]
+            // ['MemberExpression',[['Primary']]]
         ];
 
         const initalState ={
@@ -18,36 +18,95 @@ describe('parse', () => {
     });
     it("test getClosure",()=>{
         const  rules =[
-            ['Primary',[["(","Expression",")"],["Literal"],["identifier"]]],
+            ['Primary',[["(","Expression",")"],["Literal"],["Identifier"]]],
             ['Literal',[['NumberLiteral'],["StringLiteral"],["NullLiteral"],["BooleanLiteral"]]],
-            // ['MemberExpresion',[['Primary']]]
+            ['MemberExpression',[['Primary']]]
         ];
         const ClosureMap =  new Map(rules)
-        const root = getClosure('Primary',{ClosureMap})
-       expect(root).toEqual( [
+        const root = getClosure('MemberExpression',{ClosureMap})
+       expect(root).toEqual([
+        { closure: [ 'Primary' ], '$reduce': 'MemberExpression' },
         { closure: [ '(', 'Expression', ')' ], '$reduce': 'Primary' },
         { closure: [ 'Literal' ], '$reduce': 'Primary' },
-        { closure: [ 'identifier' ], '$reduce': 'Primary' },
-        { closure: [ 'NumberLiteral' ], '$reduce': 'Literal' },
-        { closure: [ 'StringLiteral' ], '$reduce': 'Literal' },
-        { closure: [ 'NullLiteral' ], '$reduce': 'Literal' },
-        { closure: [ 'BooleanLiteral' ], '$reduce': 'Literal' }
+        { closure: [ 'Identifier' ], '$reduce': 'Primary' }
       ])
     })
     it('MemberExpression ', () => {
         const str = '"fanfan"'
         const  rules =[
-            ['Primary',[["(","Expression",")"],["Literal"],["identifier"]]],
+            ['Primary',[["(","Expression",")"],["Literal"],["Identifier"]]],
             ['Literal',[['NumberLiteral'],["StringLiteral"],["NullLiteral"],["BooleanLiteral"]]],
-            // ['MemberExpresion',[['Primary']]]
+            ['MemberExpression',[['Primary']]]
         ];
 
         const initalState ={
-            'Primary':{EOF:{$finished:true}}
+            'Literal':{EOF:{$finished:true}}
         }
         const ClosureMap =  new Map(rules)
         const root = parse(str,{ClosureMap,initalState})
-       expect(root).toEqual([{"type":"Primary","children":[{"type":"Literal","children":[{"val":"\"fanfan\"","type":"StringLiteral"}]}]},{"type":"EOF"}])
+       expect(root).toEqual( [{"type":"Literal","children":[{"val":"\"fanfan\"","type":"StringLiteral"}]},{"type":"EOF"}])
+    });
+    it('member ', () => {
+        const str = "a.b"
+        const  rules =[
+            ['Primary',[["(","Expression",")"],["Literal"],["Identifier"]]],
+            ['Literal',[['NumberLiteral'],["StringLiteral"],["NullLiteral"],["BooleanLiteral"]]],
+            ['MemberExpression',
+                [
+                    ['Primary'],
+                    ['MemberExpression','[','Expression',']'],
+                    ['MemberExpression','.','Identifier'],
+                ]
+            ],
+        ];
+
+        const initalState ={
+            'MemberExpression':{EOF:{$finished:true}}
+        }
+        const ClosureMap =  new Map(rules)
+        const root = parse(str,{ClosureMap,initalState})
+        console.log(JSON.stringify(root))
+       expect(root).toEqual([{"type":"MemberExpression","children":[{"type":"MemberExpression","children":[{"type":"Primary","children":[{"val":"a","type":"Identifier"}]}]},{"val":".","type":"."},{"val":"b","type":"Identifier"}]},{"type":"EOF"}])
+    });
+    it('multiplicative ', () => {
+        const str = '1+2*3'
+        const  rules =[
+            ['Primary',[["(","Expression",")"],["Literal"],["Identifier"]]],
+            ['Literal',[['NumberLiteral'],["StringLiteral"],["NullLiteral"],["BooleanLiteral"]]],
+            ['MemberExpression',
+                [
+                    ['Primary'],
+                    ['MemberExpression','[','Expression',']'],
+                    ['MemberExpression','.','Identifier'],
+                ]
+            ],
+            [
+                'MultiplicativeExpression',
+                [
+                    ["MemberExpression"],
+                    ["MultiplicativeExpression",'*',"MemberExpression"],
+                    ["MultiplicativeExpression",'/',"MemberExpression"],
+                    ["MultiplicativeExpression",'%',"MemberExpression"],
+                ]
+            ],
+            [
+                'AdditiveExpression',
+                [
+                    ['MultiplicativeExpression'],
+                    ['AdditiveExpression','+','MultiplicativeExpression'],
+                    ['AdditiveExpression','-','MultiplicativeExpression'],
+            
+                ]
+            ]
+        ];
+
+        const initalState ={
+            'AdditiveExpression':{EOF:{$finished:true}}
+        }
+        const ClosureMap =  new Map(rules)
+        const root = parse(str,{ClosureMap,initalState})
+        console.log(root)
+    //    expect(root).toEqual([{"type":"Primary","children":[{"type":"Literal","children":[{"val":"\"fanfan\"","type":"StringLiteral"}]}]},{"type":"EOF"}])
     });
 
    
