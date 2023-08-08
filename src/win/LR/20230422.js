@@ -45,38 +45,44 @@ const regFunction = require('./20230415')
 
 const extendedState = new Map()
 function getClosure(symbol,{ClosureMap}) {//根据 ClosureMap 给 symbol 拓展closurse
-    // let rules = [] 
+    let rules = [] 
+    const extended = new Set()
+    const pool = [symbol] //深搜 广搜
+    while (pool.length !== 0) {
+        const current = pool.pop()
+        // console.log(current)
+        if (!extended.has(current)) {
+            const list = ClosureMap.get(current)
+            // rules = [...rules, ...list.map(closure => ({ closure, $reduce: current }))]
+            // console.log(rules)
+            list?.forEach(i=>{
+                rules.push({ closure:i, $reduce: current })
+                const [next] = i
+                pool.push(next)
+            })
+            
+            extended.add(current)
 
-    // const pool = [symbol] //深搜 广搜
-    // while (pool.length !== 0) {
-    //     const current = pool.pop()
-    //     // console.log(current)
-    //     if (ClosureMap.has(current)) {
-    //         const list = ClosureMap.get(current)
-    //         rules = [...rules, ...list.map(closure => ({ closure, $reduce: current }))]
-    //         // console.log(rules)
-    //         const [next] = list
-    //         pool.push(...next)
-    //     }
-    // }
-    // console.log(rules)
-    // return rules
-    const extended = new Set();
-    let res = [];
-    const stack = [symbol]
-    while(stack.length > 0){
-        const type = stack.shift();
-        if(extended.has(type))continue;
-        extended.add(type)
-        const ruleBodys = ClosureMap.get(type) || [];
-        // console.log(closure)
-        for(let closure of ruleBodys){
-            res.push({closure,$reduce:type})
-            stack.push(closure[0])
         }
     }
-    console.log(res)
-    return res
+    // console.log(rules)
+    return rules
+    // const extended = new Set();
+    // let res = [];
+    // const stack = [symbol]
+    // while(stack.length > 0){
+    //     const type = stack.shift();
+    //     if(extended.has(type))continue;
+    //     extended.add(type)
+    //     const ruleBodys = ClosureMap.get(type) || [];
+    //     // console.log(closure)
+    //     for(let closure of ruleBodys){
+    //         res.push({closure,$reduce:type})
+    //         stack.push(closure[0])
+    //     }
+    // }
+    // console.log(res)
+    // return res
 
 }
 
@@ -119,7 +125,7 @@ function expressionPrimary(list,{ClosureMap,initalState}) {
     generateState(state,{ClosureMap})
     let stateStack = [initalState]
     let stack = []
-    console.log(initalState)
+    // console.log(initalState)
     let currentState = () => stateStack[stateStack.length - 1]
     function shift(symbol) {
         // const nextState =  stateStack[stateStack.length - 1][symbol.type]
@@ -128,6 +134,14 @@ function expressionPrimary(list,{ClosureMap,initalState}) {
             &&
             currentState().$reduce) {//如果右nextstate 那就移入shift
             reduce()
+        }
+        //ASI 自动插入 ; 自动插入分号
+        if(!currentState()[symbol.type]){
+            if(['EOF','}'].includes(symbol.type) || isLineTerminator){
+                shift({type:';',value:';'})
+                shift(symbol)
+                return
+            }
         }
         stateStack.push(currentState()[symbol.type]) // 同时移入
         stack.push(symbol)
@@ -150,10 +164,15 @@ function expressionPrimary(list,{ClosureMap,initalState}) {
         }
         shift(reduceItem)
     }
-
+    let isLineTerminator = false;
     for (let i = 0; i < list.length; i++) {
         const symbol = list[i]
-        shift(symbol)
+        if(symbol.type === 'LineTerminator'){
+            isLineTerminator = true
+        }else{
+            shift(symbol)
+            isLineTerminator = false
+        }
     }
     return stack
 }
@@ -176,6 +195,7 @@ function parse(str,{ClosureMap,initalState}) {
     list.push({ //为了使最后一个reduce
             type: 'EOF'
         })
+        // console.log(list)
     return expressionPrimary(list,{ClosureMap,initalState})
 }
 
