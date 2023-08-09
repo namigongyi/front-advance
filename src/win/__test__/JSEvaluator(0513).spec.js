@@ -12,17 +12,20 @@ describe('Test evaluator', () => {
         expect(result).toBe(2)
     });
     it("let a =1;",()=>{
-        const ast = Parse(`let a =1 ;`)
-        console.log(globalEnv,'globalEnv')
-
-        const result = Evaluate(ast[0])
-        console.log(result)
-        console.log(globalEnv,'after run globalEnv')
-        expect(result).toBe(1)
-    })
-    it("Nested blocks",()=>{
-        const ast = Parse(`let a =1;a= a+1`)
+        const ast = Parse(`let a =1; a= a+1`)
+        
         const result = Evaluate(ast[0])
         expect(result).toBe(2)
+    })
+    it("Nested blocks",()=>{
+        const ast = Parse(`{
+            let a = 1
+            {
+                let b = a+1
+                b+1
+            }
+        }`)
+        const result = Evaluate(ast[0])
+        expect(result).toBe(3)
     })
 });

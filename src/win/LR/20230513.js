@@ -25,10 +25,10 @@ const rules = [
     [
         'MultiplicativeExpression',
         [
-            ["LeftHandSideExpression"],
-            ["MultiplicativeExpression",'*',"LeftHandSideExpression"],
-            ["MultiplicativeExpression",'/',"LeftHandSideExpression"],
-            ["MultiplicativeExpression",'%',"LeftHandSideExpression"],
+            ["UpdateExpression"],
+            ["MultiplicativeExpression",'*',"UpdateExpression"],
+            ["MultiplicativeExpression",'/',"UpdateExpression"],
+            ["MultiplicativeExpression",'%',"UpdateExpression"],
         ]
     ],
     [
@@ -65,11 +65,34 @@ const rules = [
         ]
 
     ],
+  
     [
         'AssignmentExpression',
         [
-            ['AdditiveExpression'],
+            ['RelationalExpression'],
             ['LeftHandSideExpression','=','AssignmentExpression']
+        ]
+    ],
+    [
+        'RelationalExpression',
+        [
+            [
+                'AdditiveExpression'
+            ],
+            [
+                'RelationalExpression','>','AdditiveExpression'
+            ],
+            [
+                'RelationalExpression','<','AdditiveExpression'
+            ],
+        ]
+    ],
+    [
+        "UpdateExpression",
+        [
+            ['LeftHandSideExpression'],
+            ['LeftHandSideExpression',"++"],
+            ['LeftHandSideExpression',"--"],
         ]
     ],
     [

@@ -54,13 +54,12 @@ const evaluator = {
     Declaration(node){//给环境添加属性和赋值
         this.currentEvc.set(node.children[1].val,void 0 )
         // const temp =this.currentEvc.get()
-        const ref = Evaluate(node.children[1])
-        if(ref instanceof Reference ){
-            const result = Evaluate(node.children[3])
-            // this.currentEvc.set(node.val,void 0)
-           return  ref.set(result)
-        }
-        
+        const ref = Evaluate(node.children[1]) //refence
+       
+        const result = Evaluate(node.children[3])
+        // this.currentEvc.set(node.val,void 0)
+         ref.set(result)
+         return result
     },
     BlockStatement(node){
         if(node.children.length === 3){
@@ -70,6 +69,24 @@ const evaluator = {
         return res 
         }
         return
+    },
+    RelationalExpression(node){
+        if(node.children.length === 1){
+            return Evaluate(node.children[0])
+        }
+        let left = Evaluate(node.children[0])
+        if(left instanceof Reference ){
+            left = left.get()
+        }
+        let right = Evaluate(node.children[2])
+        if(right instanceof Reference ){
+            right = right.get()
+        }
+        if(node.children[1].type === '>'){
+            return left > right
+        }
+            return left < right
+        
     },
     Expression(node){
         return Evaluate(node.children[0])
@@ -81,14 +98,35 @@ const evaluator = {
          const ref=   Evaluate(node.children[0])
           const result =  Evaluate(node.children[2])
           ref.set(result)
+          return result
+        }
+    },
+    UpdateExpression(node){
+        if(node.children.length ===1){
+            return Evaluate(node.children[0])
+        }
+        if(node.children[1].val === '++'){
+            let ref=   Evaluate(node.children[0])
+            ref = ref.get() + 1
+            return ref
+        }else{
+            let ref=   Evaluate(node.children[0])
+            ref = ref.get() - 1
+            return ref
         }
     },
     AdditiveExpression(node){
         if(node.children.length === 1){
             return Evaluate(node.children[0])
         }else{
-            const left = Evaluate(node.children[0])
-            const right = Evaluate(node.children[2])
+            let left = Evaluate(node.children[0])
+            if(left instanceof Reference ){
+                left = left.get()
+            }
+            let right = Evaluate(node.children[2])
+            if(right instanceof Reference ){
+                right = right.get()
+            }
             if(node.children[1].type === '+'){
                 return left + right
             }else{
@@ -115,12 +153,12 @@ const evaluator = {
     LeftHandSideExpression(node){
         return Evaluate(node.children[0])
     },
-    MemberExpression(node){
+    MemberExpression(node){// a.b就是 reference
         if(node.children.length === 1){
             return Evaluate(node.children[0])
         }else if(node.children.length === 3){
-                const object =Evaluate(node.children[0])
-                const property =Evaluate(node.children[2])
+                const object =Evaluate(node.children[0]) //a.b的话 object 存 1 
+                const property =Evaluate(node.children[2])//property存的是 b
                 return new Reference(object,property)
         }else{
             // const left = Evaluate(node.children[0])
@@ -143,7 +181,6 @@ const evaluator = {
         return Evaluate(node.children[0])
     },
     Identifier(node){
-        console.log(node)
       return  new Reference(this.currentEvc,node.val)
     },
     NumberLiteral(node){

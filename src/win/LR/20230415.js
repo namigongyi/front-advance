@@ -37,7 +37,7 @@ const regStr = `
 (?<BooleanLiteral>(?:true|false)(?![_$a-zA-Z0-9]))
 (?<keyword>(?:const|let|var|new|if|for|switch)(?![a-zA-Z0-9_$]))
 (?<Identifier>[_$A-Za-z][_$A-Za-z0-9]{0,})
-(?<operator>[\\+\\-\\*\\/\\.\\%\\=\\;\\(\\)])
+(?<operator>(\\+\\+)|(\\-\\-)|[\\+\\-\\*\\/\\.\\%\\=\\;\\(\\)\\>\\<\\{\\}])
 (?<LineTerminator>(?:\\n))
 `
 
