@@ -9,10 +9,24 @@ describe('Test evaluator', () => {
         expect(result).toBe(2)
     }) 
     it(">/<",()=>{
-        const ast = Parse(`for(i = 0; i; i++){}
+        const ast = Parse(`
+        let i= 0;
+        for(i=0;i<10;i++;){
+
+        }
         `)
-        console.log(JSON.stringify(ast[0]))
-        // const result = Evaluate(ast[0])
+        const result = Evaluate(ast[0])
+        expect(result).toBe(10)
+    }) 
+    it("condition is true",()=>{//今晚的练习
+        const ast = Parse(`
+        let b =0;
+        for(let i=0;i<10;i++;){
+            b = b+1;
+        }
+        `)
+        const result = Evaluate(ast[0])
+        console.log(globalEnv,'after globalEnv')
         // expect(result).toBe(2)
     }) 
 });

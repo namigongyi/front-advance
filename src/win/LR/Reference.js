@@ -5,7 +5,7 @@ constructor(object,property){
 }
     set(val){
         // this.object[this.property] = val
-        this.object.set(this.property,val)
+       return this.object.set(this.property,val)
     }
     get(){
         // return  this.object[this.property]

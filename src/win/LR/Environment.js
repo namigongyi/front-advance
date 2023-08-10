@@ -9,6 +9,7 @@ class Environment{
         }else {
             this.parent.set(property,value)
         }
+        return value
     }
     get(property){//作用域链
         if(this.vars.has(property) || !this.parent){

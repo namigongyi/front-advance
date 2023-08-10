@@ -38,16 +38,15 @@ const evaluator = {
        }
     },
     ForStatement(node){
-        if(node.children.length ===  9){
+        if(node.children.length ===  10){
+            Evaluate(node.children[2])//先声明 后循环
             while(true){
-                const flag =  Evaluate(node.children[5])
+                const flag =  Evaluate(node.children[4])
                 if(!flag){
                     break
                 }
-                Evaluate(node.children[3])
-                Evaluate(node.children[7])
-                Evaluate(node.children[10])
-               
+                Evaluate(node.children[6])
+                Evaluate(node.children[9])
             }
         }
     },
@@ -55,11 +54,10 @@ const evaluator = {
         this.currentEvc.set(node.children[1].val,void 0 )
         // const temp =this.currentEvc.get()
         const ref = Evaluate(node.children[1]) //refence
-       
         const result = Evaluate(node.children[3])
         // this.currentEvc.set(node.val,void 0)
-         ref.set(result)
-         return result
+         
+         return ref.set(result)
     },
     BlockStatement(node){
         if(node.children.length === 3){
@@ -82,6 +80,7 @@ const evaluator = {
         if(right instanceof Reference ){
             right = right.get()
         }
+        // console.log(right)
         if(node.children[1].type === '>'){
             return left > right
         }
@@ -97,22 +96,24 @@ const evaluator = {
         }else{
          const ref=   Evaluate(node.children[0])
           const result =  Evaluate(node.children[2])
-          ref.set(result)
-          return result
+        //   console.log(ref)
+          return ref.set(result)
         }
     },
     UpdateExpression(node){
         if(node.children.length ===1){
             return Evaluate(node.children[0])
         }
-        if(node.children[1].val === '++'){
+        if(node.children[1].val === '++'){//set也有return 值
             let ref=   Evaluate(node.children[0])
-            ref = ref.get() + 1
-            return ref
+            let current = ref.get() + 1
+            console.log(current)
+            return ref.set(current)
+             
         }else{
             let ref=   Evaluate(node.children[0])
-            ref = ref.get() - 1
-            return ref
+            let current = ref.get() - 1
+            return ref.set(current)
         }
     },
     AdditiveExpression(node){
@@ -120,7 +121,7 @@ const evaluator = {
             return Evaluate(node.children[0])
         }else{
             let left = Evaluate(node.children[0])
-            if(left instanceof Reference ){
+            if(left instanceof Reference ){ 
                 left = left.get()
             }
             let right = Evaluate(node.children[2])
