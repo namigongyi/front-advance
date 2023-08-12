@@ -74,16 +74,27 @@ const rules = [
         ]
     ],
     [
-        'RelationalExpression',
+        'LogicalOrExpression',
         [
             [
                 'AdditiveExpression'
             ],
             [
-                'RelationalExpression','>','AdditiveExpression'
+                'LogicalOrExpression','||','AdditiveExpression'
+            ]
+        ]
+    ],
+    [
+        'RelationalExpression',
+        [
+            [
+                'LogicalOrExpression'
             ],
             [
-                'RelationalExpression','<','AdditiveExpression'
+                'RelationalExpression','>','LogicalOrExpression'
+            ],
+            [
+                'RelationalExpression','<','LogicalOrExpression'
             ],
         ]
     ],
@@ -130,7 +141,7 @@ const rules = [
         'WhileStatement',
         [
             [
-                'while','(','Expression',';',')','Statement'
+                'while','(','Expression',')','Statement'
             ]
         ]
     ],
@@ -167,6 +178,14 @@ const rules = [
             ]
         ]
     ],
+    [
+        'BreakStatement',
+        [
+            [
+                'break',';'
+            ]
+        ]
+    ],
     [ 'Statement',
     [ 
          ["ExpressionStatement"],
@@ -175,6 +194,7 @@ const rules = [
          ["Declaration"],
          ["BlockStatement"],
          ["WhileStatement"],
+         ["BreakStatement"],
          ["FuntionDeclaration"],
      ]
     ],

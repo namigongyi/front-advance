@@ -1,6 +1,6 @@
 const Reference = require('./Reference')
 const Environment = require('./Environment')
-
+const Completion = require('./Completion')
 const globalEnv = new Environment()
 const evaluator = {
     env:[globalEnv], //当前的block 栈
@@ -14,7 +14,10 @@ const evaluator = {
         if(node.children.length === 1){
             return Evaluate(node.children[0])
         }
-            Evaluate(node.children[0])
+        const completion =  Evaluate(node.children[0])
+        if(completion.type === 'break'){
+            return completion
+        }
         return Evaluate(node.children[1])
     },
     StatementListItem(node){
@@ -25,17 +28,40 @@ const evaluator = {
     },
     Statement(node){
         return Evaluate(node.children[0])
+
     },
     ExpressionStatement(node){
-        return Evaluate(node.children[0])
+        return new Completion('normal',Evaluate(node.children[0]))
     },
     IfStatement(node){
-       while(true){
-        const flag = Evaluate(node.children[5])
-        if(!flag)break
-        Evaluate(node.children[10])
-        Evaluate(node.children[7])
-       }
+        if(node.children.length === 5){
+            const condition = Evaluate(node.children[2])
+            if(condition){
+             return Evaluate(node.children[4])
+            }else {
+                return new Completion('normal')
+            }
+        }else{
+            const condition = Evaluate(node.children[2])
+            if(condition){
+             return Evaluate(node.children[4])
+            }else{
+             return Evaluate(node.children[6])
+            }
+        }
+      
+    },
+    WhileStatement(node){
+        while(true){
+            const condition = Evaluate(node.children[2])
+            if(!condition){
+                break
+            }
+        }
+        const completion = evaluator(node.children[4])
+        if(completion.type === 'break'){
+            return new Completion('normal')
+        }
     },
     ForStatement(node){
         if(node.children.length ===  10){
@@ -45,8 +71,12 @@ const evaluator = {
                 if(!flag){
                     break
                 }
+                
+                const completion = Evaluate(node.children[9])
+                if(completion.type === 'break'){
+                    return new Completion('normal')
+                }
                 Evaluate(node.children[6])
-                Evaluate(node.children[9])
             }
         }
     },
@@ -56,17 +86,22 @@ const evaluator = {
         const ref = Evaluate(node.children[1]) //refence
         const result = Evaluate(node.children[3])
         // this.currentEvc.set(node.val,void 0)
-         
          return ref.set(result)
+    },
+    BreakStatement(node){
+        return new Completion('break')
     },
     BlockStatement(node){
         if(node.children.length === 3){
-        this.env.push(new Environment());
+            //创建一个新的block scope环境 把父环境的变量全部传给block里面的环境
+        this.env.push(new Environment(this.currentEvc));
+        // console.log(JSON.stringify(node.children[1]),'BlockStatement')
         const res = Evaluate(node.children[1])
+
         this.env.pop()
         return res 
         }
-        return
+        return new Completion("normal")
     },
     RelationalExpression(node){
         if(node.children.length === 1){
@@ -107,13 +142,30 @@ const evaluator = {
         if(node.children[1].val === '++'){//set也有return 值
             let ref=   Evaluate(node.children[0])
             let current = ref.get() + 1
-            console.log(current)
-            return ref.set(current)
+            // console.log(current)
+            ref.set(current)
              
         }else{
             let ref=   Evaluate(node.children[0])
             let current = ref.get() - 1
             return ref.set(current)
+        }
+    },
+    LogicalOrExpression(node){
+        if(node.children.length === 1){
+            return Evaluate(node.children[0])
+        }else{
+            let left = Evaluate(node.children[0])
+            if(left instanceof Reference ){ 
+                left = left.get()
+            }
+            
+            if(node.children[1].type === '||'){
+                if(left){
+                    return  Evaluate(node.children[2])
+                }
+                return right
+            }
         }
     },
     AdditiveExpression(node){
@@ -183,6 +235,13 @@ const evaluator = {
     },
     Identifier(node){
       return  new Reference(this.currentEvc,node.val)
+    },
+    BooleanLiteral(node){
+        if(node.val === 'true'){
+            return true
+        }else if(node.val === 'false'){
+            return false
+        }
     },
     NumberLiteral(node){
          number = eval(node.val)

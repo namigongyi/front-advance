@@ -35,9 +35,9 @@ const regStr = `
 (?<NullLiteral>null(?![_$a-zA-Z0-9]))
 (?<StringLiteral>"(?:[^"\\n\\\\\\r\\u2028\\u2029]|\\\\(?:['"\\\\bfnrtv\\n\\r\\u2028\\u2029]|\\r\\n)|\\\\x[0-9a-fA-F]{2}|\\\\u[0-9a-fA-F]{4}|\\\\[^0-9ux'"\\\\bfnrtv\\n\\\\\\r\\u2028\\u2029])*"|'(?:[^'\\n\\\\\\r\\u2028\\u2029]|\\\\(?:['"\\\\bfnrtv\\n\\r\\u2028\\u2029]|\\r\\n)|\\\\x[0-9a-fA-F]{2}|\\\\u[0-9a-fA-F]{4}|\\\\[^0-9ux'"\\\\bfnrtv\\n\\\\\\r\\u2028\\u2029])*'/, RegularExpressionLiteral:/\\/(?:\\[(?:\\\\[\\s\\S]|[^\\]])*\\]|[^*\\/\\\\\\n\\r\\u2028\\u2029]|\\\\[^\\n\\r\\u2028\\u2029])(?:\\[(?:\\\\[\\s\\S]|[^\\]])*\\]|[^\\/\\\\\\n\\r\\u2028\\u2029]|\\\\[^\\n\\r\\u2028\\u2029])*\\/[0-9a-zA-Z]*)
 (?<BooleanLiteral>(?:true|false)(?![_$a-zA-Z0-9]))
-(?<keyword>(?:const|let|var|new|if|for|switch|while)(?![a-zA-Z0-9_$]))
+(?<keyword>(?:const|let|var|new|if|for|switch|while|break)(?![a-zA-Z0-9_$]))
 (?<Identifier>[_$A-Za-z][_$A-Za-z0-9]{0,})
-(?<operator>(\\+\\+)|(\\-\\-)|[\\+\\-\\*\\/\\.\\%\\=\\;\\(\\)\\>\\<\\{\\}])
+(?<operator>\\|\\||(\\+\\+)|(\\-\\-)|[\\+\\-\\*\\/\\.\\%\\=\\;\\(\\)\\>\\<\\{\\}])
 (?<LineTerminator>(?:\\n))
 `
 
